@@ -3,19 +3,21 @@
 #include <util/delay.h>
 
 // Set frequency in kHz
-#define SFREQ 38
+#define SFREQ 56
 #if SFREQ == 38
 uint8_t TOP = 25;
-uint8_t recTmrOvrflw = 0;
+uint8_t recTmrOvrflw = 1;
 #else
 uint8_t TOP = 16;
 uint8_t recTmrOvrflw = 0;
 #endif
 
 uint8_t step = 0;
-uint8_t pulseCounter = 0;
-uint16_t counter = 0;
+uint8_t PCINTpulseCounter = 0;
+uint16_t T2ovCounter = 0;
 uint8_t pulseTimerOn = false;
+
+void startPulseTimer();
 
 // Timer Interrupt for sending data
 ISR(TIMER0_COMPA_vect)
@@ -57,10 +59,10 @@ ISR(PCINT20_vect)
 	if(!(PORTD & (1 << PORTD4)))
 	{
 		// Count a pulse
-		pulseCounter++;
+		PCINTpulseCounter++;
 
 		// If 5 pulses are counted and the timer is off...
-		if(pulseCounter == 5 && pulseTimerOn == false)
+		if(PCINTpulseCounter == 5 && pulseTimerOn == false)
 		{
 			// Start the timer
 			startPulseTimer();
@@ -71,13 +73,13 @@ ISR(PCINT20_vect)
 // Timer2 Overflow Interrupt
 ISR(TIMER2_COMPA_vect)
 {
-	counter++;
+	T2ovCounter++;
 }
 
 // Initialize timer for receiving data
 void initRecTimer()
 {
-	counter = 0;
+	T2ovCounter = 0;
 
 	// Initialize timer2 in CTC mode
 	TCCR2A |= (1 << WGM21) | (1 << COM2A0);
@@ -97,14 +99,33 @@ void initReceive()
 {
 	//Enable Pin Change Interrupts globally and for PCINT20
 	PCICR = (1 << PCIE2);
-	PCMSK - (1 << PCINT20);
+	PCMSK2 = (1 << PCINT20);
+}
+
+void startPulseTimer()
+{
+	pulseTimerOn = true;
+
+	initRecTimer();
 }
 
 int main()
 {
+	Serial.begin(9600);
+	// Make sure to set OC0A pin (PIND6) as output
+	DDRD |= (1 << DDD6);
+	DDRB |= (1 << DDB5);
+
+	// Initialize timers
+	initSendTimer();
+	initRecTimer();
+
+	// Enable global interrupts
+	sei();
+
 	for(;;)
 	{
-
+		Serial.println(recTmrOvrflw);
 	}
 
 	// Never reached

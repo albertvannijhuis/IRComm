@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
-int main(void) 
+int main(void)
 {
-  while(0) 
-  {
+	while (0)
+	{
 
-  }
+	}
 
-  return(0);
+	return (0);
 }
