@@ -1,28 +1,27 @@
 class IRComm
 {
   public:
+
+  protected:
+
+  private:
 	// Defining variables
 
 	// IF the frequency of the PWM signal should be 38kHz
-#if PWMFREQ == 38
-	uint8_t IRComm::top = TOP_38KHZ;
-	uint8_t recTimerOverflow = 0;
-#elif PWMFREQ == 56
-	uint8_t top = TOP_56KHZ;
-	uint8_t recTimerOverflow = 0;
-#else
-#error Invalid PWM Frequency
-#endif
+	#if PWMFREQ == 38
+		const uint8_t IRComm::top = 26;
+		uint8_t recTimerOverflow = 0;
+	#elif PWMFREQ == 56
+		const uint8_t top = 16;
+		uint8_t recTimerOverflow = 0;
+	#else
+	#error Invalid PWM Frequency
+	#endif
 
 	// Defining functions
 	void initSendTimer();
 	void initRecTimer();
 	void initReceive();
-
-
-  protected:
-
-  private:
 }
 
 // Defining includes
@@ -48,12 +47,7 @@ class IRComm
 #define ONE_BIT 40
 #define ZERO_BIT 20
 
-// Defining constants
-#define TOP_38KHZ 26
-#define TOP_56KHZ 16
-
-#define PWMFREQ 38
 // Set frequency in kHz
-
+#define PWMFREQ 38
 
 // Defining functions
