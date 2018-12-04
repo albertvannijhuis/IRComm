@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "IRComm.h" 
+#include "IRComm.h"
 
 IRComm *irComm;
 
@@ -8,22 +8,22 @@ ISR(TIMER0_COMPA_vect)
 {
 	irComm->step++;
 
-	if (irComm->byteToSend == 1) 
+	if (irComm->byteToSend == 1)
 	{
-		if (irComm->step > ONE_BIT) 
+		if (irComm->step > ONE_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
 			DISABLE_LEDPIN;
-		} 
-	
+		}
+
 		if(irComm->step < ONE_BIT)
 		{
 			PORTB ^= (1 << PORTB5);
-		}	
-	} 
-	else if (irComm->byteToSend == 0) 
+		}
+	}
+	else if (irComm->byteToSend == 0)
 	{
-		if (irComm->step > ZERO_BIT) 
+		if (irComm->step > ZERO_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
 			DISABLE_LEDPIN;
@@ -36,8 +36,8 @@ ISR(TIMER0_COMPA_vect)
 
 	if (irComm->step > 80)
 	{
-			TCCR0A |= (1 << COM0A0);
-			irComm->step = 0;
+		TCCR0A |= (1 << COM0A0);
+		irComm->step = 0;
 	}
 
 }
@@ -66,7 +66,7 @@ ISR(PCINT20_vect)
 }
 
 int main(void)
-{	
+{
 	irComm = new IRComm();
 	Serial.begin(9600);
 	while (0)
