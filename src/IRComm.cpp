@@ -58,6 +58,7 @@ ISR(TIMER0_COMPA_vect)
 		{
 			PORTB ^= (1 << PORTB5);
 		}
+	}
 	else if(bitType == ONE_TYPE)
 	{
 		if(step > ONE_BIT)
@@ -92,11 +93,9 @@ ISR(TIMER0_COMPA_vect)
 			PORTB ^= (1 << PORTB5);
 		}
 	}
-
-
 }
 
-void initSendTimer(uint8_t type)
+void IRComm::initSendTimer(uint8_t type)
 {
 	bitType = type;
 	// Initialize timer0 in PWM mode, non-inverting
@@ -113,7 +112,7 @@ ISR(TIMER2_COMPA_vect)
 	pulseCounter++;
 }
 
-void initReceival()
+void IRComm::initReceival()
 {
 	// Initialize timer2
 	pulseCounter = 0;

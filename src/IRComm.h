@@ -45,11 +45,11 @@ class IRComm
   private:
 	// Defining variables
 #if PWMFREQ == 38
-	uint8_t top = 26;
+	uint8_t TOP = 26;
 	uint8_t recTimerOverflow = 0;
 
 #elif PWMFREQ == 56
-	uint8_t top = 16;
+	uint8_t TOP = 16;
 	uint8_t recTimerOverflow = 0;
 
 #else
@@ -62,9 +62,8 @@ class IRComm
 	uint8_t pulseTimerOn = false;
 
 	// Defining functions
-	void initSendTimer();
-	void initRecTimer();
-	void initReceive();
+	void initSendTimer(uint8_t);
+	void initReceival();
 };
 
 #endif
