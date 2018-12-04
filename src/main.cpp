@@ -22,7 +22,7 @@ ISR(TIMER0_COMPA_vect)
 			// Stop giving timer outputs
 			TCCR0A &= ~(1 << COM0A0);
 			// Disable the IR LED
-			PORTB &= ~(1 << PORTB5);
+			DISABLE_LEDPIN;
 		}
 		/* If more than 80 steps have been counted...
 		 * A message ends after 40 counts have been over
@@ -39,7 +39,7 @@ ISR(TIMER0_COMPA_vect)
 		 */
 		if(irComm->step < START_BIT)
 		{
-			PORTB ^= (1 << PORTB5);
+			TOGGLE_LEDPIN;
 		}
 	}
 	else if(irComm->bitType == STOP_TYPE)
@@ -47,7 +47,7 @@ ISR(TIMER0_COMPA_vect)
 		if(irComm->step > STOP_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
-			PORTB &= ~(1 << PORTB5);
+			DISABLE_LEDPIN;
 		}
 		if(irComm->step > 80)
 		{
@@ -56,7 +56,7 @@ ISR(TIMER0_COMPA_vect)
 		}
 		if(irComm->step < STOP_BIT)
 		{
-			PORTB ^= (1 << PORTB5);
+			TOGGLE_LEDPIN;
 		}
 	}
 	else if(irComm->bitType == ONE_TYPE)
@@ -64,7 +64,7 @@ ISR(TIMER0_COMPA_vect)
 		if(irComm->step > ONE_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
-			PORTB &= ~(1 << PORTB5);
+			DISABLE_LEDPIN;
 		}
 		if(irComm->step > 80)
 		{
@@ -73,7 +73,7 @@ ISR(TIMER0_COMPA_vect)
 		}
 		if(irComm->step < ONE_BIT)
 		{
-			PORTB ^= (1 << PORTB5);
+			TOGGLE_LEDPIN;
 		}
 	}
 	else if(irComm->bitType == ZERO_TYPE)
@@ -81,7 +81,7 @@ ISR(TIMER0_COMPA_vect)
 		if(irComm->step > ZERO_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
-			PORTB &= ~(1 << PORTB5);
+			DISABLE_LEDPIN;
 		}
 		if(irComm->step > 80)
 		{
@@ -90,7 +90,7 @@ ISR(TIMER0_COMPA_vect)
 		}
 		if(irComm->step < ZERO_BIT)
 		{
-			PORTB ^= (1 << PORTB5);
+			TOGGLE_LEDPIN;
 		}
 	}
 }
