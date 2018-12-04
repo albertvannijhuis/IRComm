@@ -57,6 +57,9 @@ class IRComm
 	uint8_t bitType;
 	uint8_t receivedData;
 	uint8_t measuredTime;
+	uint8_t bitTimerRunning = 0;
+	uint8_t bitTimerCounter;
+	uint8_t bitTimerOverflow;
 
 	// Defining functions
 	IRComm();

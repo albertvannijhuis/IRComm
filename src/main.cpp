@@ -44,24 +44,49 @@ ISR(TIMER0_COMPA_vect)
 
 ISR(TIMER2_COMPA_vect)
 {
-	irComm->pulseCounter++;
+	// Add one to the bit timer counter
+	irComm->bitTimerCounter++;
+
+	// If 80 counts are counted...
+	if(irComm->bitTimerCounter > 80)
+	{
+		// If there have been ZERO_BIT pulses...
+		if(pulseCounter == ZERO_BIT)
+			// Set the type of received bit to ZERO_TYPE
+			bitType = ZERO_TYPE;
+		// If there have been ONE_BIT pulses...
+		else if(pulseCounter == ONE_BIT)
+			// Set the type of received bit to ONE_TYPE
+			bitType = ONE_TYPE;
+
+		// Reset the timer
+		TCNT2 = 0;
+		TIMSK2 &= ~(1 << TOIE2);
+	}
 }
 
 // Pin Change Interrupt for receiving data
 ISR(PCINT20_vect)
 {
-	// If a high signal is received...
-	if(RCPIN_HIGH)
-	{
-		// Count a pulse
-		irComm->pulseCounter++;
+	// Count a pulse
+	irComm->pulseCounter++;
 
-		// If 5 pulses are counted and the timer is off...
-		if(irComm->pulseCounter == 5 && irComm->pulseTimerOn == false)
-		{
-			// Start the timer
-			irComm->startPulseTimer();
-		}
+	if(bitTimerRunning == 0)
+	{
+		bitTimerRunning = 1;
+		bitTimerCounter = 0;
+
+		// Initialize timer2 in CTC mode
+		TCCR2A |= (1 << WGM21) | (1 << COM2A0);
+		TCCR2B |= (1 << CS20);
+
+		// Reset the timercounter
+		TCNT2 = 0;
+		// Enable timer2 overflow interrupt
+		TIMSK2 = (1 << TOIE2);
+
+		// Set output compare register
+		OCR2A = TOP;
 	}
 }
 
