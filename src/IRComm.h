@@ -5,6 +5,9 @@
 #include <util/delay.h>
 #include <stddef.h>
 
+#ifndef IRCOMM_H
+#define IRCOMM_H
+
 // Defining used pins
 #define LED_PIN         PORTB6
 #define PCI_PIN         PORTD4
@@ -32,10 +35,6 @@
 // Defining constants
 #define PWMFREQ        38
 
-
-#ifndef IRCOMM_H
-#define IRCOMM_H
-
 class IRComm
 {
   public:
@@ -49,7 +48,7 @@ class IRComm
 	uint8_t recTimerOverflow = 0;
 
 #else
-#error Invalid PWM Frequency
+//#error Invalid PWM Frequency
 #endif
 
 	uint8_t step;
@@ -59,10 +58,9 @@ class IRComm
 	uint8_t bitType;
 
 	// Defining functions
-<<<<<<< Updated upstream
+	IRComm();
 	void initSendTimer(uint8_t);
 	void initReceival();
-=======
 	void initSendTimer();
 	void initRecTimer();
 	void initReceive();
@@ -71,9 +69,6 @@ class IRComm
 
   private:
 
-
-  
->>>>>>> Stashed changes
 };
 
 #endif
