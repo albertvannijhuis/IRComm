@@ -108,16 +108,29 @@ void initSendTimer(uint8_t type)
 	TIMSK0 |= (1 << OCIE0A);
 }
 
-int main()
+ISR(TIMER2_COMPA_vect)
 {
-	step = 0;
-	initSendTimer(ONE_TYPE);
-	// Start an infinite loop
-	for(;;)
-	{
+	pulseCounter++;
+}
 
-	}
+void initReceival()
+{
+	// Initialize timer2
+	pulseCounter = 0;
 
-	// Never reached
-	return 0;
+	// Initialize timer2 in CTC mode
+	TCCR2A |= (1 << WGM21) | (1 << COM2A0);
+	TCCR2B |= (1 << CS20);
+
+	// Reset the timercounter
+	TCNT2 = 0;
+	// Enable timer2 overflow interrupt
+	TIMSK2 |= (1 << TOIE2);
+
+	// Set compare register
+	OCR2A = recTimerOverflow;
+
+	// Initialize pin change interrupts
+	PCICR |= (1 << PCIE2);
+	PCMSK2 |= (1 << PCINT20);
 }
