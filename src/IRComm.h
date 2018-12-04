@@ -39,10 +39,6 @@
 class IRComm
 {
   public:
-
-  protected:
-
-  private:
 	// Defining variables
 #if PWMFREQ == 38
 	uint8_t TOP = 26;
@@ -60,10 +56,24 @@ class IRComm
 	uint8_t pulseCounter;
 	uint16_t counter;
 	uint8_t pulseTimerOn = false;
+	uint8_t bitType;
 
 	// Defining functions
+<<<<<<< Updated upstream
 	void initSendTimer(uint8_t);
 	void initReceival();
+=======
+	void initSendTimer();
+	void initRecTimer();
+	void initReceive();
+
+  protected:
+
+  private:
+
+
+  
+>>>>>>> Stashed changes
 };
 
 #endif

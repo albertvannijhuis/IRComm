@@ -1,7 +1,7 @@
 #include "IRComm.h"
 
 // Defining variables
-uint8_t bitType;
+
 
 // Timer overflow interrupt for sending data
 ISR(TIMER0_COMPA_vect)
