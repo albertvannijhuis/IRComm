@@ -2,7 +2,8 @@
 
 // Defining variables
 IRComm::IRComm() {
-	
+	initSendTimer();
+	initReceival();
 }
 
 void IRComm::initSendTimer(uint8_t type)
