@@ -56,6 +56,8 @@ class IRComm
 	uint16_t counter;
 	uint8_t pulseTimerOn = false;
 	uint8_t bitType;
+	uint8_t receivedData;
+	uint8_t measuredTime;
 
 	// Defining functions
 	IRComm();
@@ -64,6 +66,8 @@ class IRComm
 	void initSendTimer();
 	void initRecTimer();
 	void initReceive();
+	void receiveBit();
+	void startPulseTimer();
 
   protected:
 

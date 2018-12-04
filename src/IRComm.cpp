@@ -39,3 +39,20 @@ void IRComm::initReceival()
 	PCICR |= (1 << PCIE2);
 	PCMSK2 |= (1 << PCINT20);
 }
+
+void IRComm::receiveBit() 
+{
+	if(pulseCounter >= 40 && pulseCounter < 80)
+	{    
+		receivedData = 0x01;   
+	} 
+	else if(pulseCounter < 40)
+	{ 
+		receivedData = 0x00; 
+	}
+}
+
+void IRComm::startPulseTimer() 
+{
+
+}
