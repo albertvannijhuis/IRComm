@@ -38,6 +38,10 @@
 class IRComm
 {
   public:
+
+  protected:
+
+  private:
 	// Defining variables
 #if PWMFREQ == 38
 	uint8_t top = 26;
@@ -60,11 +64,6 @@ class IRComm
 	void initSendTimer();
 	void initRecTimer();
 	void initReceive();
-
-
-  protected:
-
-  private:
 };
 
 #endif
