@@ -3,56 +3,29 @@
 // Defining variables
 IRComm::IRComm() {
 	initSendTimer();
-	initReceival();
+	sendBit(uint8_t);
 }
 
-void IRComm::initSendTimer(uint8_t type)
+
+void IRComm::initSendTimer()
 {
-	bitType = type;
-	// Initialize timer0 in PWM mode, non-inverting
+	// Init timer0 in CTC mode
 	TCCR0A |= (1 << WGM01) | (1 << COM0A0);
+	// Prescale /256
 	TCCR0B |= (1 << CS01);
-	OCR0A = TOP;
+	OCR0A = IRComm->SENDTOP;
 
-	// Enable timer overflow interrupt
-	TIMSK0 |= (1 << OCIE0A);
+	// Indicated that the timer is properly initiated
+	IRComm->sendTimerInited = 1;
 }
 
-void IRComm::initReceival()
+void IRComm:sendBit(uint8_t sendType)
 {
-	// Initialize timer2
-	pulseCounter = 0;
-
-	// Initialize timer2 in CTC mode
-	TCCR2A |= (1 << WGM21) | (1 << COM2A0);
-	TCCR2B |= (1 << CS20);
-
-	// Reset the timercounter
-	TCNT2 = 0;
-	// Enable timer2 overflow interrupt
-	TIMSK2 |= (1 << TOIE2);
-
-	// Set compare register
-	OCR2A = recTimerOverflow;
-
-	// Initialize pin change interrupts
-	PCICR |= (1 << PCIE2);
-	PCMSK2 |= (1 << PCINT20);
-}
-
-void IRComm::receiveBit() 
-{
-	if(pulseCounter >= 40 && pulseCounter < 80)
-	{    
-		receivedData = 0x01;   
-	} 
-	else if(pulseCounter < 40)
-	{ 
-		receivedData = 0x00; 
-	}
-}
-
-void IRComm::startPulseTimer() 
-{
-
+	//if(!sendTimerInited)
+		//Serial.println("Error, send bit timer not initiated)
+	//else
+		// Set which type of bit to send
+		IRComm->bitToSend = sendType;
+		// Enable timer overflow interrupts
+		TIMSK0 = (1 << OCIE0A);
 }

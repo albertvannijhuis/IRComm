@@ -2,13 +2,12 @@
 #include "IRComm.h"
 
 IRComm *irComm;
-
 // Timer overflow interrupt for sending data
 ISR(TIMER0_COMPA_vect)
 {
 	irComm->step++;
 
-	if (irComm->byteToSend == 1)
+	if (irComm->bitToSend == 1)
 	{
 		if (irComm->step > ONE_BIT)
 		{
@@ -21,7 +20,7 @@ ISR(TIMER0_COMPA_vect)
 			PORTB ^= (1 << PORTB5);
 		}
 	}
-	else if (irComm->byteToSend == 0)
+	else if (irComm->bitToSend == 0)
 	{
 		if (irComm->step > ZERO_BIT)
 		{
@@ -36,7 +35,11 @@ ISR(TIMER0_COMPA_vect)
 
 	if (irComm->step > 80)
 	{
+		// Disable the timer
 		TCCR0A |= (1 << COM0A0);
+		// Disable timer overflow interrupts
+		TIMSK0 &= ~(1 << OCIE0A);
+		// Reset step counter
 		irComm->step = 0;
 	}
 
@@ -51,13 +54,13 @@ ISR(TIMER2_COMPA_vect)
 	if(irComm->bitTimerCounter > 80)
 	{
 		// If there have been ZERO_BIT pulses...
-		if(pulseCounter == ZERO_BIT)
+		if(irComm->pulseCounter == ZERO_BIT)
 			// Set the type of received bit to ZERO_TYPE
-			bitType = ZERO_TYPE;
+			irComm->bitType = ZERO_TYPE;
 		// If there have been ONE_BIT pulses...
-		else if(pulseCounter == ONE_BIT)
+		else if(irComm->pulseCounter == ONE_BIT)
 			// Set the type of received bit to ONE_TYPE
-			bitType = ONE_TYPE;
+			irComm->bitType = ONE_TYPE;
 
 		// Reset the timer
 		TCNT2 = 0;
@@ -73,15 +76,15 @@ ISR(TIMER2_COMPA_vect)
 ISR(PCINT20_vect)
 {
 	// Count a pulse
-	irComm->pulseCounter++;
+	irComm-6ulseCounter++;
 
 	// If the timer is not running
-	if(bitTimerRunning == 0)
+	if(irComm->bitTimerRunning == 0)
 	{
 		// Signal that the timer is started
-		bitTimerRunning = 1;
+		irComm->bitTimerRunning = 1;
 		// Reset the counter
-		bitTimerCounter = 0;
+		irComm->bitTimerCounter = 0;
 
 		// Initialize timer2 in CTC mode
 		TCCR2A |= (1 << WGM21) | (1 << COM2A0);
@@ -93,17 +96,19 @@ ISR(PCINT20_vect)
 		TIMSK2 = (1 << TOIE2);
 
 		// Set output compare register
-		OCR2A = RECTOP;
+		OCR2A = irComm->RECTOP;
 	}
 }
 
 int main(void)
 {
-	irComm = new IRComm();
+	irComm = new irComm();
 	Serial.begin(9600);
+	irComm->initSendTimer();
+
 	while (0)
 	{
-		irComm->byteToSend = Serial.read();
+		sendBit(Serial.read());
 	}
 
 	return (0);

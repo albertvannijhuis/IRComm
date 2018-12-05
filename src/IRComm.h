@@ -26,10 +26,10 @@
 #define ZERO_BIT       20
 
 // Defining types of bits
-#define START_TYPE		1
-#define STOP_TYPE		2
-#define ONE_TYPE		3
-#define ZERO_TYPE		4
+#define ZERO_TYPE		0
+#define ONE_TYPE		1
+#define START_TYPE		2
+#define STOP_TYPE		3
 
 // Defining constants
 #define PWMFREQ        38
@@ -37,20 +37,24 @@
 class IRComm
 {
   public:
-	// Defining variables
-#if PWMFREQ == 38
-	uint8_t SENDTOP = 26;
-	uint8_t RECTOP = 16;
-	uint8_t recTimerOverflow = 0;
 
-#elif PWMFREQ == 56
-	uint8_t SENDTOP = 16;
-	uint8_t RECTOP = 26;
-	uint8_t recTimerOverflow = 0;
+  protected:
 
-#else
-//#error Invalid PWM Frequency
-#endif
+  private:
+		// Defining variables
+	#if PWMFREQ == 38
+		uint8_t SENDTOP = 26;
+		uint8_t RECTOP = 16;
+		uint8_t recTimerOverflow = 0;
+
+	#elif PWMFREQ == 56
+		uint8_t SENDTOP = 16;
+		uint8_t RECTOP = 26;
+		uint8_t recTimerOverflow = 0;
+
+	#else
+	//#error Invalid PWM Frequency
+	#endif
 
 	uint8_t step;
 	uint8_t pulseCounter;
@@ -62,21 +66,13 @@ class IRComm
 	uint8_t bitTimerRunning = 0;
 	uint8_t bitTimerCounter;
 	uint8_t bitTimerOverflow;
+	uint8_t sendTimerInited = 0;
+	uint8_t bitToSend;
 
 	// Defining functions
 	IRComm();
-	void initSendTimer(uint8_t);
-	void initReceival();
 	void initSendTimer();
-	void initRecTimer();
-	void initReceive();
-	void receiveBit();
-	void startPulseTimer();
-
-  protected:
-
-  private:
-
+	void sendBit(uint8_t);
 };
 
 #endif
