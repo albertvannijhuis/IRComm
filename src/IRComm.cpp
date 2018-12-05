@@ -3,7 +3,6 @@
 // Defining variables
 IRComm::IRComm() {
 	initSendTimer();
-	sendBit(uint8_t);
 }
 
 
@@ -13,19 +12,19 @@ void IRComm::initSendTimer()
 	TCCR0A |= (1 << WGM01) | (1 << COM0A0);
 	// Prescale /256
 	TCCR0B |= (1 << CS01);
-	OCR0A = IRComm->SENDTOP;
+	OCR0A = this->SENDTOP;
 
 	// Indicated that the timer is properly initiated
-	IRComm->sendTimerInited = 1;
+	this->sendTimerInited = 1;
 }
 
-void IRComm:sendBit(uint8_t sendType)
+void IRComm::sendBit(uint8_t sendType)
 {
 	//if(!sendTimerInited)
 		//Serial.println("Error, send bit timer not initiated)
 	//else
 		// Set which type of bit to send
-		IRComm->bitToSend = sendType;
+		this->bitToSend = sendType;
 		// Enable timer overflow interrupts
 		TIMSK0 = (1 << OCIE0A);
 }

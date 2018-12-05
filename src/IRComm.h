@@ -37,11 +37,8 @@
 class IRComm
 {
   public:
-
-  protected:
-
-  private:
-		// Defining variables
+	IRComm();
+	// Defining variables
 	#if PWMFREQ == 38
 		uint8_t SENDTOP = 26;
 		uint8_t RECTOP = 16;
@@ -70,9 +67,12 @@ class IRComm
 	uint8_t bitToSend;
 
 	// Defining functions
-	IRComm();
 	void initSendTimer();
-	void sendBit(uint8_t);
+	void sendBit(uint8_t sendType);
+  protected:
+
+  private:
+
 };
 
 #endif
