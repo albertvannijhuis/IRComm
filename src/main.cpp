@@ -86,7 +86,7 @@ ISR(PCINT20_vect)
 		TIMSK2 = (1 << TOIE2);
 
 		// Set output compare register
-		OCR2A = TOP;
+		OCR2A = RECTOP;
 	}
 }
 
