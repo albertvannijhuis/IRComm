@@ -61,7 +61,11 @@ ISR(TIMER2_COMPA_vect)
 
 		// Reset the timer
 		TCNT2 = 0;
+		// Disable interrupts for this timer
 		TIMSK2 &= ~(1 << TOIE2);
+
+		irComm->bitTimerRunning = 0;
+		irComm->pulseCounter = 0;
 	}
 }
 
@@ -71,9 +75,12 @@ ISR(PCINT20_vect)
 	// Count a pulse
 	irComm->pulseCounter++;
 
+	// If the timer is not running
 	if(bitTimerRunning == 0)
 	{
+		// Signal that the timer is started
 		bitTimerRunning = 1;
+		// Reset the counter
 		bitTimerCounter = 0;
 
 		// Initialize timer2 in CTC mode
