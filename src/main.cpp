@@ -6,20 +6,30 @@ IRComm *irComm;
 // Timer overflow interrupt for sending data
 ISR(TIMER0_COMPA_vect)
 {
-	irComm->step++;
-
 	if (irComm->bitToSend == 1)
 	{
-		if (irComm->step > ONE_BIT)
+		if (irComm->step == 0)
+		{
+			TCCR0A |= (1 << COM0A0);
+		}
+		else if (irComm->step == ONE_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
-			DISABLE_LEDPIN;
 		}
-
+		else if (irComm->step == 80)
+		{
+			irComm->step = 0;
+		}
+		/*// 1-40
 		if(irComm->step < ONE_BIT)
 		{
 			PORTB ^= (1 << PORTB5);
 		}
+		// 41-81
+		else if (irComm->step > ONE_BIT)
+		{
+			DISABLE_LEDPIN;
+		}*/
 	}
 	else if (irComm->bitToSend == 0)
 	{
@@ -28,23 +38,23 @@ ISR(TIMER0_COMPA_vect)
 			TCCR0A &= ~(1 << COM0A0);
 			DISABLE_LEDPIN;
 		}
-		if(irComm->step < ZERO_BIT)
+		if (irComm->step < ZERO_BIT)
 		{
 			PORTB ^= (1 << PORTB5);
 		}
 	}
 
-	if (irComm->step > 80)
-	{
-		PORTB &= ~(1 << PORTB5);
-		/*// Disable the timer
-		TCCR0A |= (1 << COM0A0);
-		// Disable timer overflow interrupts
-		TIMSK0 &= ~(1 << OCIE0A); */
-		// Reset step counter
-		irComm->step = 0;
-	}
+	irComm->step++;
 
+	//	if (irComm->step == 80)
+	//	{
+	//		PORTB &= ~(1 << PORTB5);
+	// Disable the timer
+	// Disable timer overflow interrupts
+	//TIMSK0 &= ~(1 << OCIE0A);
+	// Reset step counter
+	//		irComm->step = 0;
+	//	}
 }
 
 ISR(TIMER2_COMPA_vect)
@@ -53,14 +63,14 @@ ISR(TIMER2_COMPA_vect)
 	irComm->bitTimerCounter++;
 
 	// If 80 counts are counted...
-	if(irComm->bitTimerCounter > 80)
+	if (irComm->bitTimerCounter > 80)
 	{
 		// If there have been ZERO_BIT pulses...
-		if(irComm->pulseCounter == ZERO_BIT)
+		if (irComm->pulseCounter == ZERO_BIT)
 			// Set the type of received bit to ZERO_TYPE
 			irComm->bitType = ZERO_TYPE;
 		// If there have been ONE_BIT pulses...
-		else if(irComm->pulseCounter == ONE_BIT)
+		else if (irComm->pulseCounter == ONE_BIT)
 			// Set the type of received bit to ONE_TYPE
 			irComm->bitType = ONE_TYPE;
 
@@ -79,13 +89,13 @@ ISR(TIMER2_COMPA_vect)
 }
 
 // Pin Change Interrupt for receiving data
-ISR(PCINT20_vect)
+/*ISR(PCINT20_vect)
 {
 	// Count a pulse
 	irComm->pulseCounter++;
 
 	// If the timer is not running
-	if(irComm->bitTimerRunning != 1)
+	if (irComm->bitTimerRunning != 1)
 	{
 		// Signal that the timer is started
 		irComm->bitTimerRunning = 1;
@@ -104,18 +114,20 @@ ISR(PCINT20_vect)
 		// Set output compare register
 		OCR2A = irComm->RECTOP;
 	}
-}
+}*/
 
 int main(void)
 {
-	init();
-	irComm = new IRComm();
-	Serial.begin(9600);
-	irComm->initSendTimer();
-	irComm->sendBit(1);
+	//init();
+	DDRD |= (1 << DDD6);
 
 	PCICR = (1 << PCIE2);
 	PCMSK2 = (1 << PCINT20);
+
+	irComm = new IRComm();
+	//Serial.begin(9600);
+	//irComm->initSendTimer();
+	irComm->sendBit(1);
 
 	while (1)
 	{
@@ -126,6 +138,7 @@ int main(void)
 			Serial.println(irComm->bitToSend, HEX);
 		}*/
 		irComm->sendBit(1);
+		//_delay_us(200);
 	}
 
 	return (0);
