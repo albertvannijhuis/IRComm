@@ -8,7 +8,8 @@ ISR(TIMER0_COMPA_vect)
 {
 	if (irComm->bitToSend == 1)
 	{
-		if (irComm->step == 0)
+		irComm->step++;
+		if (irComm->step == 1)
 		{
 			TCCR0A |= (1 << COM0A0);
 		}
@@ -19,32 +20,43 @@ ISR(TIMER0_COMPA_vect)
 		else if (irComm->step == 80)
 		{
 			irComm->step = 0;
+			irComm->bitToSend = 0xff;
+			TIMSK0 = (0<<OCIE0A);
 		}
-		/*// 1-40
-		if(irComm->step < ONE_BIT)
-		{
-			PORTB ^= (1 << PORTB5);
-		}
-		// 41-81
-		else if (irComm->step > ONE_BIT)
-		{
-			DISABLE_LEDPIN;
-		}*/
 	}
 	else if (irComm->bitToSend == 0)
 	{
-		if (irComm->step > ZERO_BIT)
+		irComm->step++;
+		if (irComm->step == 1)
+		{
+			TCCR0A |= (1 << COM0A0);
+		}
+		else if (irComm->step == ZERO_BIT)
 		{
 			TCCR0A &= ~(1 << COM0A0);
-			DISABLE_LEDPIN;
 		}
-		if (irComm->step < ZERO_BIT)
+		else if (irComm->step == 80)
 		{
-			PORTB ^= (1 << PORTB5);
+			irComm->step = 0;
+			irComm->bitToSend = 0xff;
+			TIMSK0 = (0<<OCIE0A);
 		}
+
+
+		//if (irComm->step > ZERO_BIT)
+		//{
+		//	TCCR0A &= ~(1 << COM0A0);
+		//	DISABLE_LEDPIN;
+		//}
+		//if (irComm->step < ZERO_BIT)
+		//{
+		//	PORTB ^= (1 << PORTB5);
+		//}
+	}else{
+		irComm->step=0;
 	}
 
-	irComm->step++;
+	//PORTD = (1 << PORTD2);
 
 	//	if (irComm->step == 80)
 	//	{
@@ -57,7 +69,7 @@ ISR(TIMER0_COMPA_vect)
 	//	}
 }
 
-ISR(TIMER2_COMPA_vect)
+/*ISR(TIMER2_COMPA_vect)
 {
 	// Add one to the bit timer counter
 	irComm->bitTimerCounter++;
@@ -86,7 +98,7 @@ ISR(TIMER2_COMPA_vect)
 		Serial.print("Received: ");
 		Serial.println(irComm->bitType);
 	}
-}
+}*/
 
 // Pin Change Interrupt for receiving data
 /*ISR(PCINT20_vect)
@@ -118,26 +130,32 @@ ISR(TIMER2_COMPA_vect)
 
 int main(void)
 {
-	//init();
-	DDRD |= (1 << DDD6);
+	init();
+	DDRD |= (1 << DDD6) | (1 << DDD2);
+	Serial.begin(9600);
+	Serial.println(ONE_BIT);
 
-	PCICR = (1 << PCIE2);
-	PCMSK2 = (1 << PCINT20);
+	//Serial.begin(500000);
+
+	//PCICR = (1 << PCIE2);
+	//PCMSK2 = (1 << PCINT20);
 
 	irComm = new IRComm();
-	//Serial.begin(9600);
 	//irComm->initSendTimer();
-	irComm->sendBit(1);
 
 	while (1)
 	{
+	irComm->sendBit(1);
+	while(irComm->bitToSend != 0xff);
+	irComm->sendBit(0);
+	while(irComm->bitToSend != 0xff);
 		/*if(Serial.available() > 0)
 		{
 			irComm->sendBit(Serial.read());
 			Serial.print("Verzend: ");
 			Serial.println(irComm->bitToSend, HEX);
 		}*/
-		irComm->sendBit(1);
+		//irComm->sendBit(1);
 		//_delay_us(200);
 	}
 
