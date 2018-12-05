@@ -36,10 +36,11 @@ ISR(TIMER0_COMPA_vect)
 
 	if (irComm->step > 80)
 	{
-		// Disable the timer
+		PORTB &= ~(1 << PORTB5);
+		/*// Disable the timer
 		TCCR0A |= (1 << COM0A0);
 		// Disable timer overflow interrupts
-		TIMSK0 &= ~(1 << OCIE0A);
+		TIMSK0 &= ~(1 << OCIE0A); */
 		// Reset step counter
 		irComm->step = 0;
 	}
@@ -84,7 +85,7 @@ ISR(PCINT20_vect)
 	irComm->pulseCounter++;
 
 	// If the timer is not running
-	if(irComm->bitTimerRunning == 0)
+	if(irComm->bitTimerRunning != 1)
 	{
 		// Signal that the timer is started
 		irComm->bitTimerRunning = 1;
@@ -111,15 +112,20 @@ int main(void)
 	irComm = new IRComm();
 	Serial.begin(9600);
 	irComm->initSendTimer();
+	irComm->sendBit(1);
+
+	PCICR = (1 << PCIE2);
+	PCMSK2 = (1 << PCINT20);
 
 	while (1)
 	{
-		if(Serial.available() > 0)
+		/*if(Serial.available() > 0)
 		{
 			irComm->sendBit(Serial.read());
 			Serial.print("Verzend: ");
 			Serial.println(irComm->bitToSend, HEX);
-		}
+		}*/
+		irComm->sendBit(1);
 	}
 
 	return (0);

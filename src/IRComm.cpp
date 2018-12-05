@@ -24,7 +24,6 @@ void IRComm::sendBit(uint8_t sendType)
 		//Serial.println("Error, send bit timer not initiated)
 	//else
 		// Set which type of bit to send
-		sendType -= 0x30;
 		this->bitToSend = sendType;
 		// Enable timer overflow interrupts
 		TIMSK0 = (1 << OCIE0A);

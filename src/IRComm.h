@@ -32,7 +32,7 @@
 #define STOP_TYPE		3
 
 // Defining constants
-#define PWMFREQ        38
+#define PWMFREQ        56
 
 class IRComm
 {
