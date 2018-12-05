@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "IRComm.h"
 
+IRComm *irComm;
+
 // Timer overflow interrupt for sending data
 ISR(TIMER0_COMPA_vect)
 {
@@ -101,7 +103,7 @@ ISR(PCINT20_vect)
 
 int main(void)
 {
-	IRComm irComm;
+	irComm = new IRComm();
 	Serial.begin(9600);
 	irComm->initSendTimer();
 
