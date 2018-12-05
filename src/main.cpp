@@ -70,6 +70,10 @@ ISR(TIMER2_COMPA_vect)
 
 		irComm->bitTimerRunning = 0;
 		irComm->pulseCounter = 0;
+
+		irComm->bitType += 0x30;
+		Serial.print("Received: ");
+		Serial.println(irComm->bitType);
 	}
 }
 
@@ -103,13 +107,19 @@ ISR(PCINT20_vect)
 
 int main(void)
 {
+	init();
 	irComm = new IRComm();
 	Serial.begin(9600);
 	irComm->initSendTimer();
 
-	while (0)
+	while (1)
 	{
-		irComm->sendBit(Serial.read());
+		if(Serial.available() > 0)
+		{
+			irComm->sendBit(Serial.read());
+			Serial.print("Verzend: ");
+			Serial.println(irComm->bitToSend, HEX);
+		}
 	}
 
 	return (0);
