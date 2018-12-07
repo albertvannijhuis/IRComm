@@ -1,163 +1,84 @@
 #include <Arduino.h>
 #include "IRComm.h"
 
-IRComm *irComm;
+IRComm * irComm;
 
-// Timer overflow interrupt for sending data
-ISR(TIMER0_COMPA_vect)
+// Send Timer overflow interrupt
+ISR(TIMER0_COMA_vect)
 {
-	if (irComm->bitToSend == 1)
+	// If the timer has just begun...
+	if(irComm->step == 0)
 	{
-		irComm->step++;
-		if (irComm->step == 1)
-		{
-			TCCR0A |= (1 << COM0A0);
-		}
-		else if (irComm->step == ONE_BIT)
-		{
-			TCCR0A &= ~(1 << COM0A0);
-		}
-		else if (irComm->step == 80)
-		{
-			irComm->step = 0;
-			irComm->bitToSend = 0xff;
-			TIMSK0 = (0<<OCIE0A);
-		}
+		// Toggle the LED port on every compare interrupt
+		TCCR0A |= (1 << COM0A0);
+		//irComm->step++;
+		Serial.println("Timer started");
 	}
-	else if (irComm->bitToSend == 0)
+	// If the timer has reached the amount of pulses to send...
+	if(irComm->step == irComm->typeToSend)
 	{
-		irComm->step++;
-		if (irComm->step == 1)
-		{
-			TCCR0A |= (1 << COM0A0);
-		}
-		else if (irComm->step == ZERO_BIT)
-		{
-			TCCR0A &= ~(1 << COM0A0);
-		}
-		else if (irComm->step == 80)
-		{
-			irComm->step = 0;
-			irComm->bitToSend = 0xff;
-			TIMSK0 = (0<<OCIE0A);
-		}
-
-
-		//if (irComm->step > ZERO_BIT)
-		//{
-		//	TCCR0A &= ~(1 << COM0A0);
-		//	DISABLE_LEDPIN;
-		//}
-		//if (irComm->step < ZERO_BIT)
-		//{
-		//	PORTB ^= (1 << PORTB5);
-		//}
-	}else{
-		irComm->step=0;
+		// Disable the LED port
+		TCCR0A &= ~(1 << COM0A0);
+		//irComm->step++;
+		Serial.println("Pulses disabled");
+	}
+	irComm->step++;
+	// If the end of the message is reached...
+	if(irComm->step == 80)
+	{
+		// Indicate that the message is completed
+		irComm->sendComplete = 1;
+		irComm->step = 0;
+		TIMSK0 = (0 << OCIE0A);
+		Serial.println("Timer stopped");
 	}
 
-	//PORTD = (1 << PORTD2);
+	// If the message is completed
+//	if(irComm->sendComplete == 1)
+//	{
+//		// Reset the timer
+//		irComm->step = 0;
+//		// Disable compare interrupts
+//		TIMSK0 = (0 << OCIE0A);
+//	}
 
-	//	if (irComm->step == 80)
-	//	{
-	//		PORTB &= ~(1 << PORTB5);
-	// Disable the timer
-	// Disable timer overflow interrupts
-	//TIMSK0 &= ~(1 << OCIE0A);
-	// Reset step counter
-	//		irComm->step = 0;
-	//	}
+	// Add one to the timer counter
+//	irComm->step++;
 }
-
-/*ISR(TIMER2_COMPA_vect)
-{
-	// Add one to the bit timer counter
-	irComm->bitTimerCounter++;
-
-	// If 80 counts are counted...
-	if (irComm->bitTimerCounter > 80)
-	{
-		// If there have been ZERO_BIT pulses...
-		if (irComm->pulseCounter == ZERO_BIT)
-			// Set the type of received bit to ZERO_TYPE
-			irComm->bitType = ZERO_TYPE;
-		// If there have been ONE_BIT pulses...
-		else if (irComm->pulseCounter == ONE_BIT)
-			// Set the type of received bit to ONE_TYPE
-			irComm->bitType = ONE_TYPE;
-
-		// Reset the timer
-		TCNT2 = 0;
-		// Disable interrupts for this timer
-		TIMSK2 &= ~(1 << TOIE2);
-
-		irComm->bitTimerRunning = 0;
-		irComm->pulseCounter = 0;
-
-		irComm->bitType += 0x30;
-		Serial.print("Received: ");
-		Serial.println(irComm->bitType);
-	}
-}*/
-
-// Pin Change Interrupt for receiving data
-/*ISR(PCINT20_vect)
-{
-	// Count a pulse
-	irComm->pulseCounter++;
-
-	// If the timer is not running
-	if (irComm->bitTimerRunning != 1)
-	{
-		// Signal that the timer is started
-		irComm->bitTimerRunning = 1;
-		// Reset the counter
-		irComm->bitTimerCounter = 0;
-
-		// Initialize timer2 in CTC mode
-		TCCR2A |= (1 << WGM21) | (1 << COM2A0);
-		TCCR2B |= (1 << CS20);
-
-		// Reset the timercounter
-		TCNT2 = 0;
-		// Enable timer2 overflow interrupt
-		TIMSK2 = (1 << TOIE2);
-
-		// Set output compare register
-		OCR2A = irComm->RECTOP;
-	}
-}*/
 
 int main(void)
 {
+	// Initialize timers and other stuff
 	init();
-	DDRD |= (1 << DDD6) | (1 << DDD2);
+	// Set the LED pin to output
+	DDRD |= (1 << DDD6);
+	
 	Serial.begin(9600);
-	Serial.println(ONE_BIT);
 
-	//Serial.begin(500000);
+	//TIMSK0 = (0 << OCIE0A);
+	//Serial.println("Timer interrupts disabled");
 
-	//PCICR = (1 << PCIE2);
-	//PCMSK2 = (1 << PCINT20);
+	//TCCR0A = (1 << WGM01) | (1 << WGM00);
+	//TCCR0B = (1 << CS01) | (1 << WGM02);
+	//Serial.println("Timer mode set");
 
+	//OCR0A = irComm->SENDTOP;
+	//Serial.println("Timer compare set");
+	
+	// Initialize the class
 	irComm = new IRComm();
-	//irComm->initSendTimer();
+	irComm->sendBit(ZERO_BIT);
 
-	while (1)
+	// Loop forever
+	while(1)
 	{
-	irComm->sendBit(1);
-	while(irComm->bitToSend != 0xff);
-	irComm->sendBit(0);
-	while(irComm->bitToSend != 0xff);
-		/*if(Serial.available() > 0)
-		{
-			irComm->sendBit(Serial.read());
-			Serial.print("Verzend: ");
-			Serial.println(irComm->bitToSend, HEX);
-		}*/
-		//irComm->sendBit(1);
-		//_delay_us(200);
+		// Send some bits
+		//irComm->sendBit(ZERO_BIT);
+		//while(!irComm->sendComplete);
+		//irComm->sendBit(ONE_BIT);
+		//while(!irComm->sendComplete);
 	}
-
-	return (0);
+	
+	// Never reached
+	return(0);
 }

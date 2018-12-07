@@ -66,6 +66,8 @@ class IRComm
 	uint8_t bitTimerOverflow;
 	uint8_t sendTimerInited = 0;
 	uint8_t bitToSend;
+	uint8_t typeToSend;
+	uint8_t sendComplete;
 
 	// Defining functions
 	void initSendTimer();

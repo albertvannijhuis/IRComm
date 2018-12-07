@@ -7,3 +7,4 @@
 *.swp
 src/Makefile
 src/build-uno
+*.cpp~
