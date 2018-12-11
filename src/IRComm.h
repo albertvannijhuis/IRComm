@@ -1,5 +1,5 @@
 // Defining includes
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stddef.h>
@@ -73,7 +73,7 @@ class IRComm
 
 	uint8_t bitSendEnabled = 0;
 	uint8_t bitSendCounter = 0;
-	uint8_t bitSendType;
+	uint8_t bitSendType = 0;
 	uint8_t bitSendComplete = 0;
 
 	// Defining functions
