@@ -61,9 +61,14 @@ int main(void)
 		PORTD |= (1 << PORTD4);
 		PORTB |= (1 << PORTB5);
 
+		init();
+
 		sei();
 		//_delay_us(200);
 		// Initialize the class
+
+		_delay_ms(1000);
+
 		irComm = new IRComm();
 
 		//_delay_us(200);
@@ -81,6 +86,7 @@ int main(void)
 				PORTB &= ~(1 << PORTB5);
 			}
 			PORTB |= (1 << PORTB5);*/
+			_delay_us(100);
 			sendBitAndWait(ZERO_BIT);
 			/*irComm->sendBit(ZERO_BIT);
 
@@ -89,6 +95,9 @@ int main(void)
 				PORTB &= ~(1 << PORTB5);
 			}
 			PORTB |= (1 << PORTB5);*/
+			_delay_us(100);
+
+			_delay_ms(10);
 		}
 	}
 	// Never reached

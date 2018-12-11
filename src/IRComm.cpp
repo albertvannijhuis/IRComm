@@ -6,8 +6,8 @@ IRComm::IRComm()
 {
 	// Set timer0 on CTC mode, overflow at TOP, /8 prescaler
 	// The frequency is defined in IRComm.h in PWMFREQ
-	TCCR0A |= (1 << COM0A0) | (1 << WGM00) | (1 << WGM01);
-	TCCR0B |= (1 << CS01) | (1 << WGM02);
+	TCCR0A = (1 << COM0A0) | (1 << WGM00) | (1 << WGM01);
+	TCCR0B = (1 << CS00) | (1 << WGM02);
 	//Serial.println("T0 init");
 	// Set Output Compare Register to TOP
 	OCR0A = SENDTOP;
