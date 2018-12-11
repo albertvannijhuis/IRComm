@@ -40,19 +40,19 @@ class IRComm
   public:
 	IRComm();
 	// Defining variables
-	#if PWMFREQ == 38
-		uint8_t SENDTOP = 25;
-		uint8_t RECTOP = 17;
-		uint8_t recTimerOverflow = 0;
+#if PWMFREQ == 38
+	uint8_t SENDTOP = 25;
+	uint8_t RECTOP = 17;
+	uint8_t recTimerOverflow = 0;
 
-	#elif PWMFREQ == 56
-		uint8_t SENDTOP = 17;
-		uint8_t RECTOP = 25;
-		uint8_t recTimerOverflow = 0;
+#elif PWMFREQ == 56
+	uint8_t SENDTOP = 17;
+	uint8_t RECTOP = 25;
+	uint8_t recTimerOverflow = 0;
 
-	#else
-	//#error Invalid PWM Frequency
-	#endif
+#else
+	#error Invalid PWM Frequency
+#endif
 
 	/* Deprecated
 	 * uint8_t step;
@@ -69,7 +69,7 @@ class IRComm
 	 * uint8_t bitToSend;
 	 * uint8_t typeToSend;
 	 * uint8_t sendComplete;
-	*/
+	 */
 
 	uint8_t bitSendEnabled = 0;
 	uint8_t bitSendCounter = 0;

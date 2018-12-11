@@ -3,17 +3,17 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-IRComm * irComm;
+IRComm *irComm;
 
 // Send Timer overflow interrupt
-ISR(TIMER0_COMA_vect)
+ISR(TIMER0_COMPA_vect)
 {
 	// If a bit wants to be sent...
-	if(irComm->bitSendEnabled)
+	if (irComm->bitSendEnabled)
 	{
 		// If the counter has reached the amount of pulses...
 		// ..for the specified bit to be sent...
-		if(irComm->bitSendCounter >= irComm->bitSendType)
+		if (irComm->bitSendCounter >= irComm->bitSendType)
 		{
 			// Disable the 'let-throug' pin for the IR LED
 			PORTD |= (1 << PORTD4);
@@ -21,10 +21,10 @@ ISR(TIMER0_COMA_vect)
 			irComm->bitSendComplete = 0;
 		}
 		// FOR TESTING PURPOSES ONLY
-		
+
 		// Add one to the pulsecounter
 		irComm->bitSendCounter++;
-		if(irComm->bitSendCounter == 80)
+		if (irComm->bitSendCounter == 80)
 		{
 			irComm->bitSendComplete = 1;
 			irComm->bitSendCounter = 0;
@@ -38,38 +38,49 @@ int main(void)
 	//init();
 	// Enable Global Interrupts
 	//sei();
-	
+
 	//Serial.begin(2000000);
 	//Serial.println("Begin main");
 
-	DDRD |= (1 << DDD6) | (1 << DDD4);
-	PORTD |= (1 << PORTD4);
 
-	//_delay_us(200);
-	// Initialize the class
-	irComm = new IRComm();
-
-	//_delay_us(200);
-	irComm->sendBit(ONE_BIT);
-
-	//irComm->sendBit(ONE_BIT);
-	// Loop forever
-	while(1)
+	// If watchdog did a system reset, we set the pins 4 and 6 to 1
+	if (MCUSR & (1 << WDRF))
 	{
-		//_delay_us(200);
-		//Serial.println("Send ONE_BIT");
-		irComm->sendBit(ONE_BIT);
-		//Serial.println("Starting while");
-		while(!(irComm->bitSendComplete)){
-			//_delay_ms(1);
-		}
-		//_delay_us(200);
-		//{
-			//Serial.println("In while...");
-		//}
-		//Serial.println("Bit sent!");
+		DDRD = (1 << DDD6) | (1 << DDD4);
+		PORTD = (1 << PORTD4) | (1 << PORTD6);
+		while (1) ;
 	}
-	
+	else
+	{
+		DDRD |= (1 << DDD6) | (1 << DDD4);
+		PORTD |= (1 << PORTD4);
+
+		//_delay_us(200);
+		// Initialize the class
+		irComm = new IRComm();
+
+		//_delay_us(200);
+		irComm->sendBit(ONE_BIT);
+
+		//irComm->sendBit(ONE_BIT);
+		// Loop forever
+		while (1)
+		{
+			//_delay_us(200);
+			//Serial.println("Send ONE_BIT");
+			irComm->sendBit(ONE_BIT);
+			//Serial.println("Starting while");
+			while (!(irComm->bitSendComplete))
+			{
+				//_delay_ms(1);
+			}
+			//_delay_us(200);
+			//{
+			//Serial.println("In while...");
+			//}
+			//Serial.println("Bit sent!");
+		}
+	}
 	// Never reached
-	return(0);
+	return (0);
 }
