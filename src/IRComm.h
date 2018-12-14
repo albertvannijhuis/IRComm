@@ -42,8 +42,8 @@ class IRComm
 	// Defining variables
 #if PWMFREQ == 38
 	uint8_t SENDTOP = 209;
-	//uint8_t RECTOP = 142;
-	uint8_t RECTOP = 209;
+	uint8_t RECTOP = 142;
+	//uint8_t RECTOP = 209;
 	uint8_t recTimerOverflow = 0;
 
 #elif PWMFREQ == 56

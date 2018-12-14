@@ -1,6 +1,6 @@
 #include "IRComm.h"
 #include <util/delay.h>
-
+#include <Wire.h>
 IRComm::IRComm()
 {
 	/// Initialize the send timer
@@ -28,9 +28,9 @@ IRComm::IRComm()
 
 
 	// Enable pin change interrupts for PCINT[7:0]
-	PCICR = (1 << PCIE0);
+	PCICR = (1 << PCIE1);
 	// Enable pin change interrupts on digital PIN 8
-	PCMSK0 = (1 << PCINT0);
+	PCMSK1 = (1 << PCINT11);
 }
 
 void IRComm::sendBit(uint8_t sendType)
@@ -56,7 +56,11 @@ void IRComm::sendBit(uint8_t sendType)
 
 uint8_t IRComm::handleReceive(uint8_t pulsesReceived)
 {
-	typeReceived = 100 - pulsesReceived;
+	typeReceived = pulsesReceived;
+	Wire.beginTransmission(56);
+	Wire.write(255);
+	Wire.endTransmission();
+
 	if(typeReceived == ZERO_BIT)
 		return ZERO_TYPE;
 	else if(typeReceived == ONE_BIT)

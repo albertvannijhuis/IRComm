@@ -2,7 +2,7 @@
 #include "IRComm.h"
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <Wire.h>
 IRComm *irComm;
 void sendBitAndWait(uint8_t bit);
 
@@ -26,10 +26,16 @@ ISR(TIMER0_COMPA_vect)
 
 		// Add one to the pulsecounter
 		irComm->bitSendCounter++;
-		if (irComm->bitSendCounter == 80)
+		
+		// If the bit is completely sent...
+		// (a bit is sent over 100 pulses)
+		if (irComm->bitSendCounter == 100)
 		{
-		irComm->bitSendComplete = 1;
+			// Signal that the bit is completely sent
+			irComm->bitSendComplete = 1;
+			// Reset the counter
 			irComm->bitSendCounter = 0;
+			// Disable the sending of a bit
 			irComm->bitSendEnabled = 0;
 		}
 	}else{
@@ -53,8 +59,9 @@ ISR(TIMER2_COMPA_vect)
 	}
 }
 
-ISR(PCINT0_vect)
+ISR(PCINT1_vect)
 {
+	PORTD |= (1 << PORTD2);
 	if(!irComm->bitReceiveEnabled)
 	{
 		irComm->bitReceiveCounter = 0;
@@ -69,87 +76,71 @@ ISR(PCINT0_vect)
 
 int main(void)
 {
-	// If watchdog did a system reset, we set the pins 4 and 6 to 1
-	if (MCUSR & (1 << WDRF))
+	DDRB |= (1 << DDB1) | (1 << DDB2) | (1 << DDB3) | (1 << DDB4) | (1 << DDB5);
+	DDRD |= (1 << DDD2) | (1 << DDD4) | (1 << DDD6) | (1 << DDD7);
+
+	PORTB |= (1 << PORTB5);
+	PORTD |= (1 << PORTD4);
+
+	// Initialize timers
+	init();
+
+	// Enable global interrupts
+	sei();
+
+	// Initialize the class
+	irComm = new IRComm();
+
+	sendBitAndWait(ONE_BIT);
+	uint8_t recBit;
+	// Loop forever
+	while (1)
 	{
-		DDRD = (1 << DDD6) | (1 << DDD4);
-		PORTD = (1 << PORTD4) | (1 << PORTD6);
-		while (1) ;
-	}
-	else
-	{
-		DDRD |= (1 << DDD7) | (1 << DDD6) | (1 << DDD4);
-		DDRB |= (1 << DDB5) | (1 << DDB4) | (1 << DDB3) | (1 << DDB2) | (1 << DDB1);
-		PORTD |= (1 << PORTD4);
-		PORTB |= (1 << PORTB5);
-
-		// Initialize timers
-		init();
-
-		// Enable global interrupts
-		sei();
-		//_delay_us(200);
-
-		//_delay_ms(1000);
-
-		// Initialize the class
-		irComm = new IRComm();
-
-		//_delay_us(200);
-		//irComm->sendBit(ONE_BIT);
-
-		//irComm->sendBit(ONE_BIT);
-
-		sendBitAndWait(ONE_BIT);
-		uint8_t bitch;
-		// Loop forever
-		while (1)
+		if(irComm->bitReceiveComplete)
 		{
-			if(irComm->bitReceiveComplete)
-			{
-				bitch = irComm->handleReceive(irComm->bitReceiveCounter);
-				if(bitch == 0)
-					PORTB |= (1 << PORTB1);
-				else if(bitch == 1)
-					PORTB |= (1 << PORTB2);
-				else if(bitch == 2)
-					PORTB |= (1 << PORTB3);
-				else if(bitch == 3)
-					PORTB |= (1 << PORTB4);
-				else
-					PORTD |= (1 << PORTD7);
-			}
+			recBit = irComm->handleReceive(irComm->bitReceiveCounter);
+			if(recBit == 0)
+				PORTB |= (1 << PORTB1);
+			else if(recBit == 1)
+				PORTB |= (1 << PORTB2);
+			else if(recBit == 2)
+				PORTB |= (1 << PORTB3);
+			else if(recBit == 3)
+				PORTB |= (1 << PORTB4);
 			else
-			{
-				PORTB &= ~(1 << PORTB5);
-			}
-			//sendBitAndWait(ONE_BIT);
-
-			//irComm->sendBit(ONE_BIT);
-			//
-			//while (!(irComm->bitSendComplete))
-			//{
-			//	PORTB &= ~(1 << PORTB5);
-			//}
-			//PORTB |= (1 << PORTB5);
-
-			//_delay_us(100);
-			//sendBitAndWait(ZERO_BIT);
-
-			//irComm->sendBit(ZERO_BIT);
-			//
-			//while (!(irComm->bitSendComplete))
-			//{
-			//	PORTB &= ~(1 << PORTB5);
-			//}
-			//PORTB |= (1 << PORTB5);
-
-			// DELAYS FOR TESTING PURPOSES ONLY
-			//_delay_us(100);
-
-			//_delay_ms(10);
+				PORTD |= (1 << PORTD7);
 		}
+		else
+		{
+			PORTB &= ~(1 << PORTB5);
+		}
+		//sendBitAndWait(ONE_BIT);
+
+		//irComm->sendBit(ONE_BIT);
+		//
+		//while (!(irComm->bitSendComplete))
+		//{
+		//	PORTB &= ~(1 << PORTB5);
+		//}
+		//PORTB |= (1 << PORTB5);
+
+		//_delay_us(100);
+		//sendBitAndWait(ZERO_BIT);
+
+		//irComm->sendBit(ZERO_BIT);
+		//
+		//while (!(irComm->bitSendComplete))
+		//{
+		//	PORTB &= ~(1 << PORTB5);
+		//}
+		//PORTB |= (1 << PORTB5);
+
+		// DELAYS FOR TESTING PURPOSES ONLY
+		//_delay_us(100);
+
+		//_delay_ms(10);
 	}
+
 	// Never reached
 	return (0);
 }
