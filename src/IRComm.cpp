@@ -54,12 +54,23 @@ void IRComm::sendBit(uint8_t sendType)
 	bitSendEnabled = 1;
 }
 
-uint8_t IRComm::handleReceive(uint8_t pulsesReceived)
+void IRComm::startReceive(){
+	bitReceiveChanged = 0;
+	bitReceiveStarted = 0;
+	bitReceiveCounter = 0;
+	bitReceiveComplete = 0;
+	bitReceiveEnabled = 1;
+}
+
+uint8_t IRComm::handleReceive()
 {
-	typeReceived = pulsesReceived;
-	Wire.beginTransmission(56);
-	Wire.write(255);
-	Wire.endTransmission();
+	typeReceived = bitReceiveChanged;
+	//Wire.beginTransmission(56);
+	//Wire.write(255);
+	//Wire.endTransmission();
+	
+	PORTB = typeReceived;
+	//PORTB = 1;
 
 	if(typeReceived == ZERO_BIT)
 		return ZERO_TYPE;

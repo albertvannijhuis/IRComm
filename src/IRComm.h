@@ -85,7 +85,8 @@ class IRComm
 
 	// Defining functions
 	void sendBit(uint8_t sendType);
-	uint8_t handleReceive(uint8_t pulsesReceived);
+	void startReceive();
+	uint8_t handleReceive();
   protected:
 
   private:
