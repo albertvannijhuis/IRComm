@@ -42,13 +42,13 @@ class IRComm
 	// Defining variables
 #if PWMFREQ == 38
 	uint8_t SENDTOP = 209;
-	uint8_t RECTOP = 17;
+	//uint8_t RECTOP = 142;
+	uint8_t RECTOP = 209;
 	uint8_t recTimerOverflow = 0;
 
 #elif PWMFREQ == 56
-//	uint8_t SENDTOP = 17;
 	uint8_t SENDTOP = 142;
-	uint8_t RECTOP = 25;
+	uint8_t RECTOP = 209;
 	uint8_t recTimerOverflow = 0;
 
 #else
@@ -76,9 +76,16 @@ class IRComm
 	uint8_t bitSendCounter = 0;
 	uint8_t bitSendType = 0;
 	uint8_t bitSendComplete = 0;
+	uint8_t bitReceiveEnabled = 0;
+	uint8_t bitReceiveCounter = 0;
+	uint8_t bitReceiveStarted = 0;
+	uint8_t bitReceiveChanged = 0;
+	uint8_t bitReceiveComplete = 0;
+	uint8_t typeReceived;
 
 	// Defining functions
 	void sendBit(uint8_t sendType);
+	uint8_t handleReceive(uint8_t pulsesReceived);
   protected:
 
   private:
